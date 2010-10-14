@@ -50,4 +50,4 @@ $PACMAN -Sy
 
 $PACMAN --noconfirm -S filesystem licenses bash pacman coreutils vi
 
-echo "Now you can 'chroot $ROOT' and start enjoying Archlinux!"
+echo "Now you can './start' and start enjoying Archlinux!"

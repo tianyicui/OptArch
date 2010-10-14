@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -e
+
+ROOT=/opt/arch
+
+TO_BIND=(/dev /dev/pts /dev/shm /tmp)
+for d in "${TO_BIND[@]}"; do
+  mount -o bind $d $ROOT/$d
+done
+mount -t proc none $ROOT/proc
+mount -t sysfs none $ROOT/sys
+
+chroot $ROOT
+
