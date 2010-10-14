@@ -1,0 +1,53 @@
+#!/usr/bin/which bash
+
+set -e
+
+# Configuration
+ARCH=x86_64 # or i686
+DL_TOOL='aria2c -c' # download tool
+ROOT=/opt/arch
+PACMAN_DIR=/opt/pacman
+CACHE_DIR="$ROOT/var/cache/pacman/pkg"
+MIRROR_SERVER='http://mirrors.kernel.org/archlinux/$repo/os/$arch'
+
+mkdir -p $ROOT
+
+##################
+# Install Pacman #
+##################
+
+# Download packages
+rm -rf $CACHE_DIR
+mkdir -p $CACHE_DIR
+cd $CACHE_DIR
+$DL_TOOL http://www.archlinux.org/packages/core/$ARCH/pacman/download/
+$DL_TOOL http://www.archlinux.org/packages/core/$ARCH/libfetch/download/
+$DL_TOOL http://www.archlinux.org/packages/core/$ARCH/libarchive/download/
+$DL_TOOL http://www.archlinux.org/packages/core/$ARCH/openssl/download/
+$DL_TOOL http://www.archlinux.org/packages/core/$ARCH/xz/download/
+
+# Unzip and set up packages
+rm -rf $PACMAN_DIR
+mkdir -p $PACMAN_DIR
+cd $PACMAN_DIR
+for f in $CACHE_DIR/*.tar.gz ; do tar xf $f ; done
+rm -rf $PACMAN_DIR/{.INSTALL,.PKGINFO}
+sed -i -e "s:/etc/pacman.d/mirrorlist:$PACMAN_DIR/etc/pacman.d/mirrorlist:g" $PACMAN_DIR/etc/pacman.conf
+mkdir $PACMAN_DIR/etc/pacman.d
+echo "Server = $MIRROR_SERVER" > $PACMAN_DIR/etc/pacman.d/mirrorlist
+
+# The pacman we're going to use
+PACMAN="/usr/bin/env LD_LIBRARY_PATH=$PACMAN_DIR/usr/lib $PACMAN_DIR/usr/bin/pacman --root $ROOT --config $PACMAN_DIR/etc/pacman.conf --cachedir $CACHE_DIR"
+
+# pacman sync
+rm -rf $ROOT
+mkdir -p $ROOT/var/lib/pacman/
+$PACMAN -Sy
+
+############################
+# Minimalistic chroot jail #
+############################
+
+$PACMAN --noconfirm -S filesystem licenses bash pacman coreutils vi
+
+echo "Now you can 'chroot $ROOT' and start enjoying Archlinux!"
