@@ -48,6 +48,6 @@ $PACMAN -Sy
 # Minimalistic chroot jail #
 ############################
 
-$PACMAN --noconfirm -S filesystem licenses bash pacman coreutils vi
+$PACMAN --noconfirm -S filesystem licenses bash pacman coreutils vi grep
 
 echo "Now you can './start' and start enjoying Archlinux!"
